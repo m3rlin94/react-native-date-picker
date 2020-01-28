@@ -2,6 +2,7 @@ package com.henninghall.date_picker.wheels;
 
 import android.graphics.Paint;
 
+import com.henninghall.date_picker.LocaleUtils;
 import com.henninghall.date_picker.Mode;
 import com.henninghall.date_picker.PickerView;
 
@@ -27,7 +28,8 @@ public class YearWheel extends Wheel
         int max = endYear - startYear;
 
         for (int i = 0; i <= max; ++i) {
-            values.add(String.valueOf(startYear + i));
+            values.add(getLocaleString(initialDate));
+            initialDate.add(Calendar.YEAR, 1);
         }
 
         // Needed?
@@ -61,8 +63,8 @@ public class YearWheel extends Wheel
     }
 
     @Override
-    public String getFormatTemplate() {
-        return "y";
+    public String getFormatPattern() {
+        return LocaleUtils.getPatternIncluding("y", pickerView.locale);
     }
 
 }

@@ -78,7 +78,6 @@ public class PickerView extends RelativeLayout {
         hourWheel = new HourWheel(this, R.id.hour);
 
         this.dateOrder = new DateOrder(this);
-//        setDateFormat();
         changeAmPmWhenPassingMidnightOrNoon();
     }
 
@@ -150,20 +149,20 @@ public class PickerView extends RelativeLayout {
         return (Calendar) cal.clone();
     }
 
-    private String getDateTemplate(){
+    private String getDateFormatPattern(){
         if(mode == Mode.date){
-            return dateOrder.getWheel(0).getFormatTemplate() + " "
-                    + dateOrder.getWheel(1).getFormatTemplate() + " "
-                    + dateOrder.getWheel(2).getFormatTemplate();
+            return dateOrder.getWheel(0).getFormatPattern() + " "
+                    + dateOrder.getWheel(1).getFormatPattern() + " "
+                    + dateOrder.getWheel(2).getFormatPattern();
         }
-        return dayWheel.getFormatTemplate();
+        return dayWheel.getFormatPattern();
     }
 
-    private String getDateFormatTemplate() {
-        return this.getDateTemplate() + " "
-                + hourWheel.getFormatTemplate() + " "
-                + minutesWheel.getFormatTemplate()
-                + ampmWheel.getFormatTemplate();
+    private String getFormatPattern() {
+        return this.getDateFormatPattern() + " "
+                + hourWheel.getFormatPattern() + " "
+                + minutesWheel.getFormatPattern()
+                + ampmWheel.getFormatPattern();
     }
 
     public String getDateString() {
@@ -238,12 +237,13 @@ public class PickerView extends RelativeLayout {
     }
 
     protected SimpleDateFormat getDateFormat() {
-        String newDateFormat = getDateFormatTemplate();
+        String newDateFormat = getFormatPattern();
         SimpleDateFormat format = new SimpleDateFormat(newDateFormat, locale);
         format.set2DigitYearStart(twoDigitYearStart);
         return format;
     }
 
+    // TODO: Can probably be removed since using full year now
     public void update2DigitYearStart(Calendar selectedDate){
         Calendar cal = (Calendar) selectedDate.clone();
         cal.add(Calendar.YEAR, -50); // subtract 50 years to hit the middle of the century

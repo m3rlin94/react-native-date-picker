@@ -34,7 +34,7 @@ public class HourWheel extends Wheel {
     }
 
     @Override
-    public String getFormatTemplate() {
+    public String getFormatPattern() {
         return Settings.usesAmPm() ? "h": "HH";
     }
 

@@ -28,24 +28,13 @@ public class AmPmWheel extends Wheel {
         return values;
     }
 
-
-    //    @Override
-    void init() {
-        Calendar cal = pickerView.getInitialDate();
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        values.add(format.format(cal.getTime()));
-        cal.add(Calendar.HOUR_OF_DAY, 12);
-        values.add(format.format(cal.getTime()));
-        picker.setDisplayedValues(values.toArray(new String[0]));
-    }
-
     @Override
     public boolean visible() {
         return Settings.usesAmPm() && pickerView.mode != Mode.date;
     }
 
     @Override
-    public String getFormatTemplate() {
+    public String getFormatPattern() {
         return Settings.usesAmPm() ? " a " : "";
     }
 

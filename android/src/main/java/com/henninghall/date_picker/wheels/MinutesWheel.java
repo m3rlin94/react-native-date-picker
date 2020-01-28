@@ -37,7 +37,7 @@ public class MinutesWheel extends Wheel {
     }
 
     @Override
-    public String getFormatTemplate() {
+    public String getFormatPattern() {
         return "mm";
     }
 

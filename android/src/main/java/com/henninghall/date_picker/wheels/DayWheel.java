@@ -3,13 +3,11 @@ package com.henninghall.date_picker.wheels;
 import android.graphics.Paint;
 import android.text.TextUtils;
 
+import com.henninghall.date_picker.LocaleUtils;
 import com.henninghall.date_picker.Mode;
 import com.henninghall.date_picker.PickerView;
 import com.henninghall.date_picker.Utils;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -85,7 +83,7 @@ public class DayWheel extends Wheel {
     }
 
     private String getValueFormat(Calendar cal){
-        return displayFormat.format(cal.getTime());
+        return format.format(cal.getTime());
     }
 
     @Override
@@ -94,22 +92,11 @@ public class DayWheel extends Wheel {
     }
 
 
-    private String getPattern(){
-        DateFormat df4 = DateFormat.getDateInstance(DateFormat.FULL, pickerView.locale);
-        String fullPattern = ((SimpleDateFormat)df4).toLocalizedPattern();
-        return fullPattern
-                .replace("EEEE", "EEE")
-                .replace("MMMM", "MMM")
-                .replace(",", "");
-    }
-
-    private ArrayList<String> getPatternPieces(){
-        return Utils.splitOnSpace(getPattern());
-    }
-
     @Override
-    public String getFormatTemplate() {
-        return getPattern();
+    public String getFormatPattern() {
+        return LocaleUtils.getFullPattern(pickerView.locale)
+                .replace("EEEE", "EEE")
+                .replace("MMMM", "MMM");
     }
 
     @Override
@@ -120,6 +107,11 @@ public class DayWheel extends Wheel {
         return removeYear(value);
     }
 
+    @Override
+    public Paint.Align getTextAlign() {
+        return Paint.Align.RIGHT;
+    }
+
     private String toTodayString(String value) {
         String todayString = Utils.printToday(pickerView.locale);
         boolean shouldBeCapitalized = Character.isUpperCase(value.charAt(0));
@@ -128,25 +120,10 @@ public class DayWheel extends Wheel {
                 : todayString;
     }
 
-    @Override
-    public Paint.Align getTextAlign() {
-        return Paint.Align.RIGHT;
-    }
-
-
     private String removeYear(String value) {
         ArrayList<String> pieces = Utils.splitOnSpace(value);
-        pieces.remove(getYearPatternPos());
+        pieces.remove(LocaleUtils.getPatternPos("y", pickerView.locale));
         return TextUtils.join(" ", pieces);
-    }
-
-    private int getYearPatternPos() {
-        ArrayList<String> pieces = getPatternPieces();
-        for (String piece: pieces){
-            if(piece.contains("y")) return pieces.indexOf(piece);
-        }
-        return -1;
-        // TODO: Throw exception.
     }
 
 }

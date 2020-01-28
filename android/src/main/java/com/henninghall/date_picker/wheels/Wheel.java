@@ -6,10 +6,11 @@ import android.view.View;
 import cn.carbswang.android.numberpickerview.library.NumberPickerView;
 import com.henninghall.date_picker.PickerView;
 
-import org.apache.commons.lang3.LocaleUtils;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
+
 public abstract class Wheel {
 
     private final Wheel self;
@@ -17,10 +18,9 @@ public abstract class Wheel {
     public PickerView pickerView;
     private Calendar userSetValue;
 
-//    abstract void init();
     public abstract boolean visible();
     public abstract Paint.Align getTextAlign();
-    public abstract String getFormatTemplate();
+    public abstract String getFormatPattern();
     public abstract ArrayList<String> getValues(Calendar initialDate);
 
     public String toDisplayValue(String value) {
@@ -28,18 +28,16 @@ public abstract class Wheel {
     }
 
     ArrayList<String> values = new ArrayList<>();
-//    ArrayList<String> displayValues;
     public NumberPickerView picker;
     public SimpleDateFormat format;
-    SimpleDateFormat displayFormat;
 
     public Wheel(final PickerView pickerView, final int id) {
         this.id = id;
         this.self = this;
         this.pickerView = pickerView;
         this.picker = (NumberPickerView) pickerView.findViewById(id);
+        this.format = new SimpleDateFormat(getFormatPattern(), pickerView.locale);
         picker.setTextAlign(getTextAlign());
-        clearValues();
         picker.setOnValueChangedListener(new NumberPickerView.OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPickerView picker, int oldVal, int newVal) {
@@ -48,14 +46,7 @@ public abstract class Wheel {
         });
     }
 
-    private void clearValues(){
-        this.displayFormat = new SimpleDateFormat(getFormatTemplate(), pickerView.locale);
-        this.format = new SimpleDateFormat(getFormatTemplate(), pickerView.locale);
-//        this.format = new SimpleDateFormat(getFormatTemplate(), LocaleUtils.toLocale("en_US"));
-//        this.values = new ArrayList<>();
-    }
-
-    public int getIndexOfDate(Calendar date){
+    private int getIndexOfDate(Calendar date){
         format.setTimeZone(pickerView.timeZone);
         return values.indexOf(format.format(date.getTime()));
     }
@@ -69,7 +60,7 @@ public abstract class Wheel {
         return getValueAtIndex(getIndex());
     }
 
-    public int getIndex() {
+    private int getIndex() {
         return picker.getValue();
     }
 
@@ -90,7 +81,7 @@ public abstract class Wheel {
     }
 
     public void refresh() {
-        clearValues();
+        this.format = new SimpleDateFormat(getFormatPattern(), pickerView.locale);
         if (!this.visible()) return;
         afterInit();
     }
@@ -113,6 +104,18 @@ public abstract class Wheel {
     public void updateVisibility(){
         int visibility = visible() ? View.VISIBLE: View.GONE;
         picker.setVisibility(visibility);
+    }
+
+    private SimpleDateFormat getFormat(Locale locale) {
+        return new SimpleDateFormat(this.getFormatPattern(), locale);
+    }
+
+    String getLocaleString(Calendar cal) {
+        return getString(cal, this.pickerView.locale);
+    }
+
+    private String getString(Calendar cal, Locale locale){
+        return getFormat(locale).format(cal.getTime());
     }
 
 }
