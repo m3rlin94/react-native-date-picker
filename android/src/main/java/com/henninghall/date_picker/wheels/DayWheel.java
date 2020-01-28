@@ -1,11 +1,14 @@
 package com.henninghall.date_picker.wheels;
 
 import android.graphics.Paint;
+import android.text.TextUtils;
 
 import com.henninghall.date_picker.Mode;
 import com.henninghall.date_picker.PickerView;
 import com.henninghall.date_picker.Utils;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -13,6 +16,8 @@ import java.util.Date;
 
 
 public class DayWheel extends Wheel {
+
+    private String todayValue;
 
     public DayWheel(PickerView pickerView, int id) {
         super(pickerView, id);
@@ -26,7 +31,9 @@ public class DayWheel extends Wheel {
         Calendar endCal = getEndCal();
 
         while (!cal.after(endCal)){
-            values.add(getValueFormat(cal));
+            String value = getValueFormat(cal);
+            values.add(value);
+            if(Utils.isToday(cal)) todayValue = value;
             cal.add(Calendar.DATE, 1);
         }
 
@@ -77,26 +84,8 @@ public class DayWheel extends Wheel {
         cal.set(Calendar.MILLISECOND, 0);
     }
 
-    private String getDisplayValue(Calendar cal){
-        return getDateString(cal);
-//        return Utils.isToday(cal) ? getTodayString() : getDateString(cal);
-    }
-
     private String getValueFormat(Calendar cal){
         return displayFormat.format(cal.getTime());
-    }
-
-    private String getDateString(Calendar cal) {
-        return displayFormat.format(cal.getTime()).substring(3);
-    }
-
-    private String getTodayString(){
-        String todayString = Utils.printToday(pickerView.locale);
-        return capitalize(todayString);
-    }
-
-    private String capitalize(String s){
-        return s.substring(0, 1).toUpperCase() + s.substring(1);
     }
 
     @Override
@@ -104,29 +93,60 @@ public class DayWheel extends Wheel {
         return pickerView.mode == Mode.datetime;
     }
 
-    @Override
-    public String getFormatTemplate() {
-//        String locale = pickerView.locale.getLanguage();
-//        if(locale.equals("ko"))
-//            return "yy MMM d일 EEE";
-//        if(locale.equals("ja") || locale.contains("zh"))
-//            return "yy MMMd日 EEE";
-//        if(Utils.monthNameBeforeMonthDate(pickerView.locale)){
-//            return "yy EEE MMM d";
-//        }
-//        else
-            return "yy EEE d MMM";
+
+    private String getPattern(){
+        DateFormat df4 = DateFormat.getDateInstance(DateFormat.FULL, pickerView.locale);
+        String fullPattern = ((SimpleDateFormat)df4).toLocalizedPattern();
+        return fullPattern
+                .replace("EEEE", "EEE")
+                .replace("MMMM", "MMM")
+                .replace(",", "");
     }
 
+    private ArrayList<String> getPatternPieces(){
+        return Utils.splitOnSpace(getPattern());
+    }
+
+    @Override
+    public String getFormatTemplate() {
+        return getPattern();
+    }
 
     @Override
     public String toDisplayValue(String value) {
-        return value.substring(3);
+        if (value.equals(todayValue)) {
+            return toTodayString(value);
+        }
+        return removeYear(value);
+    }
+
+    private String toTodayString(String value) {
+        String todayString = Utils.printToday(pickerView.locale);
+        boolean shouldBeCapitalized = Character.isUpperCase(value.charAt(0));
+        return shouldBeCapitalized
+                ? Utils.capitalize(todayString)
+                : todayString;
     }
 
     @Override
     public Paint.Align getTextAlign() {
         return Paint.Align.RIGHT;
+    }
+
+
+    private String removeYear(String value) {
+        ArrayList<String> pieces = Utils.splitOnSpace(value);
+        pieces.remove(getYearPatternPos());
+        return TextUtils.join(" ", pieces);
+    }
+
+    private int getYearPatternPos() {
+        ArrayList<String> pieces = getPatternPieces();
+        for (String piece: pieces){
+            if(piece.contains("y")) return pieces.indexOf(piece);
+        }
+        return -1;
+        // TODO: Throw exception.
     }
 
 }

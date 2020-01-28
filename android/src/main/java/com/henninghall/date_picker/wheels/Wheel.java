@@ -27,7 +27,7 @@ public abstract class Wheel {
         return value;
     }
 
-    ArrayList<String> values;
+    ArrayList<String> values = new ArrayList<>();
 //    ArrayList<String> displayValues;
     public NumberPickerView picker;
     public SimpleDateFormat format;
@@ -90,8 +90,8 @@ public abstract class Wheel {
     }
 
     public void refresh() {
-        if (!this.visible()) return;
         clearValues();
+        if (!this.visible()) return;
         afterInit();
     }
 

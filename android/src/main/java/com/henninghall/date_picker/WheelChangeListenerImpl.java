@@ -37,7 +37,7 @@ public class WheelChangeListenerImpl implements WheelChangeListener {
 
             DateFormat df1 = DateFormat.getDateInstance(DateFormat.MEDIUM, pickerView.locale);
             DateFormat df2 = DateFormat.getDateInstance(DateFormat.SHORT, pickerView.locale);
-            DateFormat df3 = DateFormat.getDateInstance(DateFormat.LONG, pickerView.locale);
+            DateFormat df3 = DateFormat .getDateInstance(DateFormat.LONG, pickerView.locale);
             DateFormat df4 = DateFormat.getDateInstance(DateFormat.FULL, pickerView.locale);
 //            dateFormat = new SimpleDateFormat(getDateFormatTemplate(), Locale.US);
             Date newDate = dateFormat.parse(toParse);

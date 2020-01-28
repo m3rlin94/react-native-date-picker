@@ -13,7 +13,9 @@ import net.time4j.PrettyTime;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -76,5 +78,17 @@ public class Utils {
                 context.getResources().getDisplayMetrics()
         );
     }
+
+    public static ArrayList<String> splitOnSpace(String value){
+        String[] array = value.split(" ");
+        ArrayList<String> arrayList = new ArrayList<>();
+        Collections.addAll(arrayList, array);
+        return arrayList;
+    }
+
+    public static String capitalize(String s){
+        return s.substring(0, 1).toUpperCase() + s.substring(1);
+    }
+
 
 }
