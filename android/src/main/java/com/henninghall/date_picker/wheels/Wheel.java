@@ -15,15 +15,20 @@ public abstract class Wheel {
     private final Wheel self;
     public final int id;
     public PickerView pickerView;
-    private String userSetValue;
+    private Calendar userSetValue;
 
-    abstract void init();
+//    abstract void init();
     public abstract boolean visible();
     public abstract Paint.Align getTextAlign();
     public abstract String getFormatTemplate();
+    public abstract ArrayList<String> getValues(Calendar initialDate);
+
+    public String toDisplayValue(String value) {
+        return value;
+    }
 
     ArrayList<String> values;
-    ArrayList<String> displayValues;
+//    ArrayList<String> displayValues;
     public NumberPickerView picker;
     public SimpleDateFormat format;
     SimpleDateFormat displayFormat;
@@ -45,9 +50,9 @@ public abstract class Wheel {
 
     private void clearValues(){
         this.displayFormat = new SimpleDateFormat(getFormatTemplate(), pickerView.locale);
-        this.format = new SimpleDateFormat(getFormatTemplate(), LocaleUtils.toLocale("en_US"));
-        this.values = new ArrayList<>();
-        this.displayValues= new ArrayList<>();
+        this.format = new SimpleDateFormat(getFormatTemplate(), pickerView.locale);
+//        this.format = new SimpleDateFormat(getFormatTemplate(), LocaleUtils.toLocale("en_US"));
+//        this.values = new ArrayList<>();
     }
 
     public int getIndexOfDate(Calendar date){
@@ -60,7 +65,7 @@ public abstract class Wheel {
     }
 
     public String getValue() {
-        if(!visible()) return userSetValue;
+        if(!visible()) return format.format(userSetValue.getTime());
         return getValueAtIndex(getIndex());
     }
 
@@ -74,7 +79,7 @@ public abstract class Wheel {
 
     public void setValue(Calendar date) {
         format.setTimeZone(pickerView.timeZone);
-        this.userSetValue = format.format(date.getTime());
+        this.userSetValue = date;
         int index = getIndexOfDate(date);
 
         if(index > -1) {
@@ -87,7 +92,22 @@ public abstract class Wheel {
     public void refresh() {
         if (!this.visible()) return;
         clearValues();
-        init();
+        afterInit();
+    }
+
+    private String[] getDisplayValues(ArrayList<String> values){
+        ArrayList<String> displayValues = new ArrayList<>();
+        for (String value: values) {
+            displayValues.add(this.toDisplayValue(value));
+        }
+        return displayValues.toArray(new String[0]);
+    }
+
+    private void afterInit(){
+        values = getValues(pickerView.getInitialDate());
+        picker.setDisplayedValues(getDisplayValues(values));
+        picker.setMinValue(0);
+        picker.setMaxValue(values.size() -1);
     }
 
     public void updateVisibility(){

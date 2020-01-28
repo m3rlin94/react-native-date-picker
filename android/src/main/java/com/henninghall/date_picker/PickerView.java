@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -32,8 +33,9 @@ import cn.carbswang.android.numberpickerview.library.NumberPickerView;
 
 public class PickerView extends RelativeLayout {
 
+    private final DateOrder dateOrder;
     public LinearLayout wheelsWrapper;
-    public SimpleDateFormat dateFormat;
+//    private SimpleDateFormat dateFormat;
     private HourWheel hourWheel;
     private DayWheel dayWheel;
     public MinutesWheel minutesWheel;
@@ -52,6 +54,7 @@ public class PickerView extends RelativeLayout {
     private DateBoundary minDate;
     private DateBoundary maxDate;
     private WheelChangeListener onWheelChangeListener = new WheelChangeListenerImpl(this);
+    private Date twoDigitYearStart;
 
     public PickerView() {
         super(DatePickerManager.context);
@@ -74,7 +77,8 @@ public class PickerView extends RelativeLayout {
         ampmWheel = new AmPmWheel(this, R.id.ampm);
         hourWheel = new HourWheel(this, R.id.hour);
 
-        setDateFormat();
+        this.dateOrder = new DateOrder(this);
+//        setDateFormat();
         changeAmPmWhenPassingMidnightOrNoon();
     }
 
@@ -121,7 +125,7 @@ public class PickerView extends RelativeLayout {
 
     public void setLocale(Locale locale) {
         this.locale = locale;
-        setDateFormat();
+        dateOrder.updateOrder(locale);
         wheelOrderUpdater.update(locale, mode);
         emptyWheelUpdater.update(mode);
         requireDisplayValueUpdate = true;
@@ -146,23 +150,27 @@ public class PickerView extends RelativeLayout {
         return (Calendar) cal.clone();
     }
 
+    private String getDateTemplate(){
+        if(mode == Mode.date){
+            return dateOrder.getWheel(0).getFormatTemplate() + " "
+                    + dateOrder.getWheel(1).getFormatTemplate() + " "
+                    + dateOrder.getWheel(2).getFormatTemplate();
+        }
+        return dayWheel.getFormatTemplate();
+    }
+
     private String getDateFormatTemplate() {
-        String dateTemplate = (mode == Mode.date)
-                ? (yearWheel.getFormatTemplate() + " "
-                + monthWheel.getFormatTemplate() + " "
-                + dateWheel.getFormatTemplate())
-                : dayWheel.getFormatTemplate();
-        return dateTemplate + " "
+        return this.getDateTemplate() + " "
                 + hourWheel.getFormatTemplate() + " "
                 + minutesWheel.getFormatTemplate()
-                +  ampmWheel.getFormatTemplate();
+                + ampmWheel.getFormatTemplate();
     }
 
     public String getDateString() {
-        String dateString= (mode == Mode.date)
-                ? (yearWheel.getValue() + " "
-                + monthWheel.getValue() + " "
-                + dateWheel.getValue())
+        String dateString = (mode == Mode.date)
+                ? dateOrder.getWheel(0).getValue() + " "
+                + dateOrder.getWheel(1).getValue() + " "
+                + dateOrder.getWheel(2).getValue()
                 : dayWheel.getValue();
         return dateString
                 + " " + hourWheel.getValue()
@@ -172,8 +180,8 @@ public class PickerView extends RelativeLayout {
 
     public void setMode(Mode mode) {
         this.mode = mode;
-        setDateFormat();
         applyOnAllWheels(new UpdateVisibility());
+        dateOrder.updateOrder(locale);
         wheelOrderUpdater.update(locale, mode);
         emptyWheelUpdater.update(mode);
         requireDisplayValueUpdate = true;
@@ -229,14 +237,17 @@ public class PickerView extends RelativeLayout {
         return maxDate.get();
     }
 
-    public void setDateFormat(){
-        dateFormat = new SimpleDateFormat(getDateFormatTemplate(), Locale.US);
+    protected SimpleDateFormat getDateFormat() {
+        String newDateFormat = getDateFormatTemplate();
+        SimpleDateFormat format = new SimpleDateFormat(newDateFormat, locale);
+        format.set2DigitYearStart(twoDigitYearStart);
+        return format;
     }
 
     public void update2DigitYearStart(Calendar selectedDate){
         Calendar cal = (Calendar) selectedDate.clone();
         cal.add(Calendar.YEAR, -50); // subtract 50 years to hit the middle of the century
-        dateFormat.set2DigitYearStart(cal.getTime());
+        this.twoDigitYearStart = cal.getTime();
     }
 
     public void setShownCountOnEmptyWheels(int shownCount) {

@@ -7,6 +7,7 @@ import com.henninghall.date_picker.PickerView;
 import com.henninghall.date_picker.Utils;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -19,20 +20,17 @@ public class DayWheel extends Wheel {
     private static int defaultNumberOfDays = Calendar.getInstance().getActualMaximum(Calendar.DAY_OF_YEAR);
 
     @Override
-    void init() {
+    public ArrayList<String> getValues(Calendar initialDate) {
+        ArrayList<String> values = new ArrayList<>();
         Calendar cal = getStartCal();
         Calendar endCal = getEndCal();
 
         while (!cal.after(endCal)){
             values.add(getValueFormat(cal));
-            displayValues.add(getDisplayValue(cal));
             cal.add(Calendar.DATE, 1);
         }
 
-        picker.setMaxValue(0);
-        picker.setDisplayedValues(displayValues.toArray(new String[0]));
-        picker.setMinValue(0);
-        picker.setMaxValue(displayValues.size() - 1);
+        return values;
     }
 
     private Calendar getStartCal(){
@@ -79,20 +77,16 @@ public class DayWheel extends Wheel {
         cal.set(Calendar.MILLISECOND, 0);
     }
 
-    private boolean isSameDay(Calendar c1, Calendar c2) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", pickerView.locale);
-        return (sdf.format(c1.getTime()).equals(sdf.format(c2.getTime())));
-    }
-
     private String getDisplayValue(Calendar cal){
-        return Utils.isToday(cal) ? getTodayString() : getDateString(cal);
+        return getDateString(cal);
+//        return Utils.isToday(cal) ? getTodayString() : getDateString(cal);
     }
 
     private String getValueFormat(Calendar cal){
-        return format.format(cal.getTime());
+        return displayFormat.format(cal.getTime());
     }
 
-    private String getDateString(Calendar cal){
+    private String getDateString(Calendar cal) {
         return displayFormat.format(cal.getTime()).substring(3);
     }
 
@@ -112,15 +106,22 @@ public class DayWheel extends Wheel {
 
     @Override
     public String getFormatTemplate() {
-        String locale = pickerView.locale.getLanguage();
-        if(locale.equals("ko"))
-            return "yy MMM d일 (EEE)";
-        if(locale.equals("ja") || locale.contains("zh"))
-            return "yy MMMd日 EEE";
-        if(Utils.monthNameBeforeMonthDate(pickerView.locale)){
-            return "yy EEE MMM d";
-        }
-        else return "yy EEE d MMM";
+//        String locale = pickerView.locale.getLanguage();
+//        if(locale.equals("ko"))
+//            return "yy MMM d일 EEE";
+//        if(locale.equals("ja") || locale.contains("zh"))
+//            return "yy MMMd日 EEE";
+//        if(Utils.monthNameBeforeMonthDate(pickerView.locale)){
+//            return "yy EEE MMM d";
+//        }
+//        else
+            return "yy EEE d MMM";
+    }
+
+
+    @Override
+    public String toDisplayValue(String value) {
+        return value.substring(3);
     }
 
     @Override

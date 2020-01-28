@@ -2,7 +2,9 @@ import React, { Component } from 'react'
 import locales from '../locales'
 import PropSlider from '../PropSlider'
 
-const data = locales.map(key => ({ name: key }))
+const data = locales
+  .filter(l => ['en-US', 'en-GB', 'sv-SE', 'ko-KR'].includes(l))
+  .map(key => ({ name: key }))
 
 const split1 = Math.floor(data.length / 3)
 const split2 = Math.floor((2 * data.length) / 3)

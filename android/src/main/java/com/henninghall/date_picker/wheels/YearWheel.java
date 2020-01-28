@@ -5,6 +5,7 @@ import android.graphics.Paint;
 import com.henninghall.date_picker.Mode;
 import com.henninghall.date_picker.PickerView;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 public class YearWheel extends Wheel
@@ -19,20 +20,20 @@ public class YearWheel extends Wheel
     }
 
     @Override
-    void init() {
+    public ArrayList<String> getValues(Calendar initialDate) {
+        ArrayList<String> values = new ArrayList<>();
         final int startYear = getStartYear();
-        final int endYear = getEndYear() ;
+        final int endYear = getEndYear();
         int max = endYear - startYear;
 
         for (int i = 0; i <= max; ++i) {
             values.add(String.valueOf(startYear + i));
-            displayValues.add(String.valueOf(startYear + i));
         }
 
+        // Needed?
         picker.setMaxValue(0);
-        picker.setDisplayedValues(displayValues.toArray(new String[0]));
-        picker.setMinValue(0);
-        picker.setMaxValue(max);
+
+        return values;
     }
 
     private int getEndYear() {

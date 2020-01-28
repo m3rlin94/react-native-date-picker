@@ -11,20 +11,16 @@ public class MonthWheel extends Wheel
     public MonthWheel(final PickerView pickerView, final int id) {
         super(pickerView, id);
     }
-    
+
+
     @Override
-    void init() {
-        final int min = 0;
-        final int max = 11;
-        final Calendar cal = this.pickerView.getInitialDate();
-        for (int i = min; i <= max; ++i) {
-            this.values.add(getUsString(cal));
-            this.displayValues.add(getLocaleString(cal));
-            cal.add(Calendar.MONTH, 1);
+    public ArrayList<String> getValues(Calendar initialDate) {
+        ArrayList<String> values = new ArrayList<>();
+        for (int i = 0; i <= 11; ++i) {
+            values.add(getUsString(initialDate));
+            initialDate.add(Calendar.MONTH, 1);
         }
-        this.picker.setDisplayedValues(this.displayValues.toArray(new String[0]));
-        this.picker.setMinValue(min);
-        this.picker.setMaxValue(max);
+        return values;
     }
 
     @Override

@@ -7,7 +7,9 @@ export default class MinimalExample extends Component {
   render = () => (
     <DatePicker
       date={this.state.date}
+      mode="time"
       onDateChange={date => this.setState({ date })}
+      locale={'en_GB'}
     />
   )
 }
